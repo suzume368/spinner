@@ -21,7 +21,9 @@ MAX_CAPTCHA_RETRIES = 3
 
 def make_driver():
     options = Options()
-    options.binary_location = "/usr/bin/brave-browser"
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option("useAutomationExtension", False)
     # Disable Brave's notification banners
@@ -31,7 +33,7 @@ def make_driver():
     options.add_argument("--disable-features=PrivacySandboxSettings4")
     print("Downloading/Verifying ChromeDriver v147...")
     service = Service(ChromeDriverManager(driver_version="147").install())
-    print("Launching Brave...")
+    print("Launching Chrome (headless)...")
     return webdriver.Chrome(service=service, options=options)
 
 
@@ -235,3 +237,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+        
