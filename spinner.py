@@ -14,7 +14,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-PHONE_NUMBERS = ["0336xxxxxxx", "0331xxxxxxx"]
+PHONE_NUMBERS = ["03347417368"]
 URL = "https://my.ptcl.net.pk/SpinTheWheel/Default.aspx"
 MAX_CAPTCHA_RETRIES = 3
 
