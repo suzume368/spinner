@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+*.png
+captcha.png
+after_submit_*.png
+error_*.png
+.venv/
+.vscode/
