@@ -31,8 +31,8 @@ def make_driver():
     options.add_argument("--disable-infobars")
     options.add_argument("--no-first-run")
     options.add_argument("--disable-features=PrivacySandboxSettings4")
-    print("Downloading/Verifying ChromeDriver v147...")
-    service = Service(ChromeDriverManager(driver_version="147").install())
+    print("Downloading/Verifying ChromeDriver (auto-detect)...")
+    service = Service(ChromeDriverManager().install())
     print("Launching Chrome (headless)...")
     return webdriver.Chrome(service=service, options=options)
 
@@ -237,4 +237,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-        
+    
