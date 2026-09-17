@@ -1,11 +1,12 @@
+import os
 import re
 import time
+import traceback
 
 import ddddocr
 from selenium import webdriver
 from selenium.common.exceptions import (
     ElementClickInterceptedException,
-    TimeoutException,
 )
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -19,18 +20,37 @@ URL = "https://my.ptcl.net.pk/SpinTheWheel/Default.aspx"
 MAX_CAPTCHA_RETRIES = 3
 
 
+def find_browser_binary():
+    candidates = [
+        "/usr/bin/google-chrome",
+        "/usr/bin/google-chrome-stable",
+        "/usr/bin/chromium",
+        "/usr/bin/chromium-browser",
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    return None
+
+
 def make_driver():
     options = Options()
-    options.add_argument("--headless")
+    browser_binary = find_browser_binary()
+    if browser_binary:
+        options.binary_location = browser_binary
+
+    options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--window-size=1920,1080")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option("useAutomationExtension", False)
-    # Disable Brave's notification banners
     options.add_argument("--disable-notifications")
     options.add_argument("--disable-infobars")
     options.add_argument("--no-first-run")
     options.add_argument("--disable-features=PrivacySandboxSettings4")
+
     print("Downloading/Verifying ChromeDriver (auto-detect)...")
     service = Service(ChromeDriverManager().install())
     print("Launching Chrome (headless)...")
@@ -111,7 +131,6 @@ def process_number(driver, wait, ocr, number):
     print(f"{'─' * 50}")
     driver.get(URL)
 
-    # Dismiss any Brave info banner that may block clicks
     try:
         dismiss = driver.find_element(By.XPATH, "//button[contains(text(),'Got it')]")
         dismiss.click()
@@ -159,7 +178,6 @@ def process_number(driver, wait, ocr, number):
     time.sleep(0.8)
     print("  Clicking Start Game...")
     start_button = wait.until(EC.element_to_be_clickable((By.ID, "btnSubmit")))
-    # Scroll into view then JS click — bypasses any overlay completely
     driver.execute_script(
         "arguments[0].scrollIntoView({block: 'center'});", start_button
     )
@@ -227,8 +245,13 @@ def main():
         for number in PHONE_NUMBERS:
             try:
                 process_number(driver, wait, ocr, number)
-            except Exception as e:
-                print(f"  ❌ Unexpected error for {number}: {e}")
+            except Exception:
+                print(f"  ❌ Unexpected error for {number}:")
+                traceback.print_exc()
+                try:
+                    driver.save_screenshot(f"error_{number}.png")
+                except Exception:
+                    pass
     finally:
         print("\nCleaning up — closing browser.")
         driver.quit()
@@ -237,4 +260,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
